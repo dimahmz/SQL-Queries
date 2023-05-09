@@ -1,0 +1,64 @@
+-- 1) Sélectionner les noms des fournisseurs localisés dans la même ville que le fournisseur ‘1:
+
+select fournisseur_nom from Fournisseurs fo 
+where fo.ville = (select ville from Fournisseurs f where f.fournisseur_id = 1);
+
+select F.* from Fournisseurs  F
+join Fournisseurs f on F.ville = f.ville
+where f.fournisseur_id = 1;
+
+-- 2) Lister les projets situés dans les villes où réside au moins un fournisseur.
+
+select * from Projets p where p.ville in (select distinct ville from  Fournisseurs);
+
+select distinct  p.* from Projets p join Fournisseurs f on f.ville=p.ville;
+
+SELECT p.*
+FROM Projets p
+JOIN (
+  SELECT DISTINCT ville
+  FROM Fournisseurs
+) AS FournisseursVilles
+ON p.ville = FournisseursVilles.ville;
+
+-- 3) Donner la quantité totale vendue, par fournisseur, des pièces de nom P2 (supposée non unique)
+
+select piece_nom , 
+	  F.Fournisseur_nom, sum(FBP.quantite)  as quantite_totale
+	from Pieces P
+	join FournPiecesProjets FBP using (piece_id)
+    join Fournisseurs F on FBP.fournisseur_id= F.fournisseur_id
+    where piece_nom = 'P2' 
+    group by (F.fournisseur_id)
+    
+
+-- 4) Donner le nombre total de fournisseurs des pièces de nom P2
+
+select count(distinct fournisseur_id) from FournPiecesProjets
+where piece_id in (select piece_id from Pieces
+where piece_nom = "P2")
+
+-- 5) Sélectionner les quantités totales des pièces vendues par type de pièce.
+
+select  count (type) ,  type  from Pieces P
+join FournPiecesProjets using(piece_id)
+group by(type);
+
+
+-- 6) Lister les noms des fournisseurs ayant un statut inférieur à la moyenne des statuts.
+
+select fournisseur_nom from Fournisseurs F
+where status < (select avg(status) from Fournisseurs)
+
+--- 7) Calculer les marges totales des prix par projet (Nom projet - Marge totale).
+
+  select projet_nom , 
+	(
+         SELECT DATEDIFF(date_fin_projet, CURDATE()) 
+   	 ) AS `marge de projet`
+    from Projets;
+
+
+
+
+
